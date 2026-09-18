@@ -1,0 +1,74 @@
+// use prisma-8
+
+model User {
+    id  String @default(uuid())
+    email String @unique
+    password String // Hash
+    username String @unique
+    gameMember GameMember[]
+}
+
+enum GameStatus {
+  LOST
+  WON
+  TIE
+}
+
+enum GamePerfStatus{
+  RUNNING
+  SEARCHING
+  STOPPED
+  ABORTED
+}
+
+model Game {
+  id  String @default(uuid())
+  name String @unique
+  timelimit Int
+  status GameStatus
+  gameStatus GamePerfStatus
+  startedAt DateTime
+  endAt DateTime
+  questions Question[]
+  gameMember GameMember[]
+}
+
+model GameMember {
+  id String  @default(uuid())
+  gameId String
+  game  Game  @relation(references: [id], fields: [gameId])
+  userId String
+  user  User @relation(references: [id], fields: [userId])
+}
+
+enum OpsSign{
+  PLUS
+  MINUS
+  MULTIPLY
+  DIVIDE
+}
+
+model Question{
+  id String @default(uuid())
+  gameId String
+  game  Game  @relation(references: [id], fields: [gameId])
+  answers QuestionAnswer[]
+  operation OpsSign
+  numOfOprands Int
+  NumsToBeUsed Int[]
+}
+
+model QuestionAnswer{
+  id String @default(uuid())
+
+  questionId String
+  question Question @relation(references: [id], fields : [questionId])
+  
+  answers Int
+  
+  gameId String
+  game  Game  @relation(references: [id], fields: [gameId])
+
+  userId String
+  user  User @relation(references: [id], fields: [userId])
+}

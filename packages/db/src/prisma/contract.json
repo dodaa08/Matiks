@@ -1,0 +1,1065 @@
+{
+  "schemaVersion": "1",
+  "targetFamily": "sql",
+  "target": "postgres",
+  "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2",
+  "roots": {
+    "game": {
+      "model": "Game",
+      "namespace": "public"
+    },
+    "gameMember": {
+      "model": "GameMember",
+      "namespace": "public"
+    },
+    "question": {
+      "model": "Question",
+      "namespace": "public"
+    },
+    "questionAnswer": {
+      "model": "QuestionAnswer",
+      "namespace": "public"
+    },
+    "user": {
+      "model": "User",
+      "namespace": "public"
+    }
+  },
+  "domain": {
+    "namespaces": {
+      "public": {
+        "enum": {
+          "GamePerfStatus": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "RUNNING",
+                "value": "RUNNING"
+              },
+              {
+                "name": "SEARCHING",
+                "value": "SEARCHING"
+              },
+              {
+                "name": "STOPPED",
+                "value": "STOPPED"
+              },
+              {
+                "name": "ABORTED",
+                "value": "ABORTED"
+              }
+            ]
+          },
+          "GameStatus": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "LOST",
+                "value": "LOST"
+              },
+              {
+                "name": "WON",
+                "value": "WON"
+              },
+              {
+                "name": "TIE",
+                "value": "TIE"
+              }
+            ]
+          },
+          "OpsSign": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "PLUS",
+                "value": "PLUS"
+              },
+              {
+                "name": "MINUS",
+                "value": "MINUS"
+              },
+              {
+                "name": "MULTIPLY",
+                "value": "MULTIPLY"
+              },
+              {
+                "name": "DIVIDE",
+                "value": "DIVIDE"
+              }
+            ]
+          }
+        },
+        "models": {
+          "Game": {
+            "fields": {
+              "endAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "gameStatus": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "GamePerfStatus",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "name": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "startedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "status": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "GameStatus",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "timelimit": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "gameMember": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "gameId"
+                  ]
+                },
+                "to": {
+                  "model": "GameMember",
+                  "namespace": "public"
+                }
+              },
+              "questions": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "gameId"
+                  ]
+                },
+                "to": {
+                  "model": "Question",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "endAt": {
+                  "column": "endAt"
+                },
+                "gameStatus": {
+                  "column": "gameStatus"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "name": {
+                  "column": "name"
+                },
+                "startedAt": {
+                  "column": "startedAt"
+                },
+                "status": {
+                  "column": "status"
+                },
+                "timelimit": {
+                  "column": "timelimit"
+                }
+              },
+              "namespaceId": "public",
+              "table": "game"
+            }
+          },
+          "GameMember": {
+            "fields": {
+              "gameId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "userId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "game": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "gameId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Game",
+                  "namespace": "public"
+                }
+              },
+              "user": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "userId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "gameId": {
+                  "column": "gameId"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "userId": {
+                  "column": "userId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "gameMember"
+            }
+          },
+          "Question": {
+            "fields": {
+              "NumsToBeUsed": {
+                "many": true,
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "gameId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "numOfOprands": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "operation": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "OpsSign",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              }
+            },
+            "relations": {
+              "answers": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "questionId"
+                  ]
+                },
+                "to": {
+                  "model": "QuestionAnswer",
+                  "namespace": "public"
+                }
+              },
+              "game": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "gameId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Game",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "NumsToBeUsed": {
+                  "column": "NumsToBeUsed"
+                },
+                "gameId": {
+                  "column": "gameId"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "numOfOprands": {
+                  "column": "numOfOprands"
+                },
+                "operation": {
+                  "column": "operation"
+                }
+              },
+              "namespaceId": "public",
+              "table": "question"
+            }
+          },
+          "QuestionAnswer": {
+            "fields": {
+              "answers": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "gameId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "questionId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "userId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "game": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "gameId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Game",
+                  "namespace": "public"
+                }
+              },
+              "question": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "questionId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Question",
+                  "namespace": "public"
+                }
+              },
+              "user": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "userId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "answers": {
+                  "column": "answers"
+                },
+                "gameId": {
+                  "column": "gameId"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "questionId": {
+                  "column": "questionId"
+                },
+                "userId": {
+                  "column": "userId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "questionAnswer"
+            }
+          },
+          "User": {
+            "fields": {
+              "email": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "password": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "username": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "gameMember": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "userId"
+                  ]
+                },
+                "to": {
+                  "model": "GameMember",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "email": {
+                  "column": "email"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "password": {
+                  "column": "password"
+                },
+                "username": {
+                  "column": "username"
+                }
+              },
+              "namespaceId": "public",
+              "table": "user"
+            }
+          }
+        }
+      }
+    }
+  },
+  "storage": {
+    "namespaces": {
+      "public": {
+        "entries": {
+          "table": {
+            "game": {
+              "checks": [
+                {
+                  "expression": "\"gameStatus\" IN ('RUNNING', 'SEARCHING', 'STOPPED', 'ABORTED')",
+                  "name": "game_gameStatus_check_aad60db3",
+                  "prefix": "game_gameStatus_check"
+                },
+                {
+                  "expression": "\"status\" IN ('LOST', 'WON', 'TIE')",
+                  "name": "game_status_check_c5bf2996",
+                  "prefix": "game_status_check"
+                }
+              ],
+              "columns": {
+                "endAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "gameStatus": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "GamePerfStatus",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "name": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "startedAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "status": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "GameStatus",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "timelimit": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [],
+              "uniques": [
+                {
+                  "columns": [
+                    "name"
+                  ]
+                }
+              ]
+            },
+            "gameMember": {
+              "columns": {
+                "gameId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "userId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "source": {
+                    "columns": [
+                      "gameId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "gameMember"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "game"
+                  }
+                },
+                {
+                  "source": {
+                    "columns": [
+                      "userId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "gameMember"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "user"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "gameId"
+                  ],
+                  "name": "gameMember_gameId_idx_6cdb47f8",
+                  "prefix": "gameMember_gameId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "userId"
+                  ],
+                  "name": "gameMember_userId_idx_a489d58a",
+                  "prefix": "gameMember_userId_idx",
+                  "unique": false
+                }
+              ],
+              "uniques": []
+            },
+            "question": {
+              "checks": [
+                {
+                  "expression": "array_position(\"NumsToBeUsed\", NULL) IS NULL",
+                  "name": "question_NumsToBeUsed_elem_not_null_34985c11",
+                  "prefix": "question_NumsToBeUsed_elem_not_null"
+                },
+                {
+                  "expression": "\"operation\" IN ('PLUS', 'MINUS', 'MULTIPLY', 'DIVIDE')",
+                  "name": "question_operation_check_279ddad2",
+                  "prefix": "question_operation_check"
+                }
+              ],
+              "columns": {
+                "NumsToBeUsed": {
+                  "codecId": "pg/int4@1",
+                  "many": true,
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "gameId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "numOfOprands": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "operation": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "OpsSign",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                }
+              },
+              "foreignKeys": [
+                {
+                  "source": {
+                    "columns": [
+                      "gameId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "question"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "game"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "gameId"
+                  ],
+                  "name": "question_gameId_idx_6cdb47f8",
+                  "prefix": "question_gameId_idx",
+                  "unique": false
+                }
+              ],
+              "uniques": []
+            },
+            "questionAnswer": {
+              "columns": {
+                "answers": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "gameId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "questionId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "userId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "source": {
+                    "columns": [
+                      "questionId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "questionAnswer"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "question"
+                  }
+                },
+                {
+                  "source": {
+                    "columns": [
+                      "gameId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "questionAnswer"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "game"
+                  }
+                },
+                {
+                  "source": {
+                    "columns": [
+                      "userId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "questionAnswer"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "user"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "gameId"
+                  ],
+                  "name": "questionAnswer_gameId_idx_6cdb47f8",
+                  "prefix": "questionAnswer_gameId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "questionId"
+                  ],
+                  "name": "questionAnswer_questionId_idx_fdb42076",
+                  "prefix": "questionAnswer_questionId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "userId"
+                  ],
+                  "name": "questionAnswer_userId_idx_a489d58a",
+                  "prefix": "questionAnswer_userId_idx",
+                  "unique": false
+                }
+              ],
+              "uniques": []
+            },
+            "user": {
+              "columns": {
+                "email": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "password": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "username": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [],
+              "uniques": [
+                {
+                  "columns": [
+                    "email"
+                  ]
+                },
+                {
+                  "columns": [
+                    "username"
+                  ]
+                }
+              ]
+            }
+          },
+          "valueSet": {
+            "GamePerfStatus": {
+              "kind": "valueSet",
+              "values": [
+                "RUNNING",
+                "SEARCHING",
+                "STOPPED",
+                "ABORTED"
+              ]
+            },
+            "GameStatus": {
+              "kind": "valueSet",
+              "values": [
+                "LOST",
+                "WON",
+                "TIE"
+              ]
+            },
+            "OpsSign": {
+              "kind": "valueSet",
+              "values": [
+                "PLUS",
+                "MINUS",
+                "MULTIPLY",
+                "DIVIDE"
+              ]
+            }
+          }
+        },
+        "id": "public",
+        "kind": "postgres-schema"
+      }
+    },
+    "storageHash": "55287270dc888ee6cb91917f344bf70b71bcbf66497373a74701b4065334a844"
+  },
+  "execution": {
+    "executionHash": "7d60dd632bc6bf30002ebadf3f9b3d6d13a2b32afd5a79af17f920eea2410a94",
+    "mutations": {
+      "defaults": [
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "game"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "gameMember"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "question"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "questionAnswer"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "user"
+          }
+        }
+      ]
+    }
+  },
+  "capabilities": {
+    "postgres": {
+      "distinctOn": true,
+      "jsonAgg": true,
+      "lateral": true,
+      "limit": true,
+      "orderBy": true,
+      "returning": true
+    },
+    "sql": {
+      "checkConstraint": true,
+      "defaultInInsert": true,
+      "enums": true,
+      "lateral": true,
+      "returning": true,
+      "scalarList": true
+    }
+  },
+  "extensions": {},
+  "meta": {},
+  "_generated": {
+    "warning": "⚠️  GENERATED FILE - DO NOT EDIT",
+    "message": "This file is automatically generated by \"prisma contract emit\".",
+    "regenerate": "To regenerate, run: prisma contract emit"
+  }
+}
