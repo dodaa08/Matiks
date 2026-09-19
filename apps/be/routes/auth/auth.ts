@@ -1,20 +1,19 @@
 import express from "express";
 import type { Request, Response } from "express";
 import  {db} from "@repo/db";
-import  {SignUpSchema, SignInSchema,zodError} from "@repo/common";
+import {SignUpSchema, SignInSchema} from "@repo/common";
 import bcrypt, { hash } from "bcryptjs";
 import  {sign} from "jsonwebtoken";
-import  dotenv from "dotenv";
-dotenv.config();
+import {JWT_SECRET} from "./../../utils";
+import { Middleware } from "../../middleware/Authmiddleware";
 
-const AuthRouter = express.Router();
-const JWT_SECRET = process.env.JWTTOKEN || "No token";
+export const AuthRouter = express.Router();
  
 AuthRouter.post("/signup",  async (req : Request, res : Response)=>{
     const {success, data, error} = SignUpSchema.safeParse(req.body);
     if(!success){ 
         res.status(403).json({
-            message : `${zodError({error})}`
+            message : `${error.flatten().fieldErrors}`
         });
         return;
     }
@@ -46,10 +45,10 @@ AuthRouter.post("/signup",  async (req : Request, res : Response)=>{
 });
 
 AuthRouter.post("/signin", async (req : Request, res : Response)=>{
-    const {success, data, error} = SignUpSchema.safeParse(req.body);
+    const {success, data, error} = SignInSchema.safeParse(req.body);
     if(!success){ 
         res.status(403).json({
-            message : `${zodError({error})}`
+            message : `${error.flatten().fieldErrors}`
         });
         return;
     }
@@ -83,17 +82,26 @@ AuthRouter.post("/signin", async (req : Request, res : Response)=>{
 
 });
 
-
 // add a middleware and good to go
-AuthRouter.get("/me", async (req : Request,  res : Response)=>{
-    const username = req.body;
-
-    const userinfo =  await db.orm.public.User.where({username}).first();
+AuthRouter.get("/me", Middleware, async (req : Request,  res : Response)=>{
     
-    return res.status(200).json({
-        message : "",
-        Name : userinfo?.username,
-        Email : userinfo?.email
-    });
+    try{
+        const userId = req.userId;
+        const userinfo =  await db.orm.public.User.where({ id : userId}).first();
+        // Omit password ? 
+        // Why include game member here with prisma
+        // TODO
+        
+        return res.status(200).json({
+            message : "Success",
+            User : userinfo
+        });
+    }
+    catch(e){
+        return res.status(400).json({
+            message : "Error",
+            User : e
+        });
+    };
 
 });
