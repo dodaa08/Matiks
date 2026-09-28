@@ -43,27 +43,6 @@
               {
                 "name": "STOPPED",
                 "value": "STOPPED"
-              },
-              {
-                "name": "ABORTED",
-                "value": "ABORTED"
-              }
-            ]
-          },
-          "GameStatus": {
-            "codecId": "pg/text@1",
-            "members": [
-              {
-                "name": "LOST",
-                "value": "LOST"
-              },
-              {
-                "name": "WON",
-                "value": "WON"
-              },
-              {
-                "name": "TIE",
-                "value": "TIE"
               }
             ]
           },
@@ -87,13 +66,34 @@
                 "value": "DIVIDE"
               }
             ]
+          },
+          "Result": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "LOST",
+                "value": "LOST"
+              },
+              {
+                "name": "WON",
+                "value": "WON"
+              },
+              {
+                "name": "TIE",
+                "value": "TIE"
+              },
+              {
+                "name": "ABORTED",
+                "value": "ABORTED"
+              }
+            ]
           }
         },
         "models": {
           "Game": {
             "fields": {
               "endAt": {
-                "nullable": false,
+                "nullable": true,
                 "type": {
                   "codecId": "pg/timestamptz-temporal@1",
                   "kind": "scalar"
@@ -119,10 +119,10 @@
                   "kind": "scalar"
                 }
               },
-              "name": {
+              "score": {
                 "nullable": false,
                 "type": {
-                  "codecId": "pg/text@1",
+                  "codecId": "pg/int4@1",
                   "kind": "scalar"
                 }
               },
@@ -131,19 +131,6 @@
                 "type": {
                   "codecId": "pg/timestamptz-temporal@1",
                   "kind": "scalar"
-                }
-              },
-              "status": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/text@1",
-                  "kind": "scalar"
-                },
-                "valueSet": {
-                  "entityKind": "enum",
-                  "entityName": "GameStatus",
-                  "namespaceId": "public",
-                  "plane": "domain"
                 }
               },
               "timelimit": {
@@ -197,14 +184,11 @@
                 "id": {
                   "column": "id"
                 },
-                "name": {
-                  "column": "name"
+                "score": {
+                  "column": "score"
                 },
                 "startedAt": {
                   "column": "startedAt"
-                },
-                "status": {
-                  "column": "status"
                 },
                 "timelimit": {
                   "column": "timelimit"
@@ -227,6 +211,33 @@
                 "nullable": false,
                 "type": {
                   "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "questionsAnswered": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "result": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "Result",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "score": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
                   "kind": "scalar"
                 }
               },
@@ -279,6 +290,15 @@
                 },
                 "id": {
                   "column": "id"
+                },
+                "questionsAnswered": {
+                  "column": "questionsAnswered"
+                },
+                "result": {
+                  "column": "result"
+                },
+                "score": {
+                  "column": "score"
                 },
                 "userId": {
                   "column": "userId"
@@ -411,6 +431,13 @@
                   "kind": "scalar"
                 }
               },
+              "isCorrect": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
               "questionId": {
                 "nullable": false,
                 "type": {
@@ -486,6 +513,9 @@
                 },
                 "id": {
                   "column": "id"
+                },
+                "isCorrect": {
+                  "column": "isCorrect"
                 },
                 "questionId": {
                   "column": "questionId"
@@ -577,21 +607,16 @@
             "game": {
               "checks": [
                 {
-                  "expression": "\"gameStatus\" IN ('RUNNING', 'SEARCHING', 'STOPPED', 'ABORTED')",
-                  "name": "game_gameStatus_check_aad60db3",
+                  "expression": "\"gameStatus\" IN ('RUNNING', 'SEARCHING', 'STOPPED')",
+                  "name": "game_gameStatus_check_54558e1e",
                   "prefix": "game_gameStatus_check"
-                },
-                {
-                  "expression": "\"status\" IN ('LOST', 'WON', 'TIE')",
-                  "name": "game_status_check_c5bf2996",
-                  "prefix": "game_status_check"
                 }
               ],
               "columns": {
                 "endAt": {
                   "codecId": "pg/timestamptz-temporal@1",
                   "nativeType": "timestamptz",
-                  "nullable": false
+                  "nullable": true
                 },
                 "gameStatus": {
                   "codecId": "pg/text@1",
@@ -609,26 +634,15 @@
                   "nativeType": "text",
                   "nullable": false
                 },
-                "name": {
-                  "codecId": "pg/text@1",
-                  "nativeType": "text",
+                "score": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
                   "nullable": false
                 },
                 "startedAt": {
                   "codecId": "pg/timestamptz-temporal@1",
                   "nativeType": "timestamptz",
                   "nullable": false
-                },
-                "status": {
-                  "codecId": "pg/text@1",
-                  "nativeType": "text",
-                  "nullable": false,
-                  "valueSet": {
-                    "entityKind": "valueSet",
-                    "entityName": "GameStatus",
-                    "namespaceId": "public",
-                    "plane": "storage"
-                  }
                 },
                 "timelimit": {
                   "codecId": "pg/int4@1",
@@ -638,15 +652,21 @@
               },
               "foreignKeys": [],
               "indexes": [],
-              "uniques": [
-                {
-                  "columns": [
-                    "name"
-                  ]
-                }
-              ]
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
             },
             "gameMember": {
+              "checks": [
+                {
+                  "expression": "\"result\" IN ('LOST', 'WON', 'TIE', 'ABORTED')",
+                  "name": "gameMember_result_check_de63840b",
+                  "prefix": "gameMember_result_check"
+                }
+              ],
               "columns": {
                 "gameId": {
                   "codecId": "pg/text@1",
@@ -656,6 +676,35 @@
                 "id": {
                   "codecId": "pg/text@1",
                   "nativeType": "text",
+                  "nullable": false
+                },
+                "questionsAnswered": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "result": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "Result",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "score": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nativeType": "int4",
                   "nullable": false
                 },
                 "userId": {
@@ -716,6 +765,11 @@
                   "unique": false
                 }
               ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
               "uniques": []
             },
             "question": {
@@ -793,6 +847,11 @@
                   "unique": false
                 }
               ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
               "uniques": []
             },
             "questionAnswer": {
@@ -811,6 +870,11 @@
                   "codecId": "pg/text@1",
                   "nativeType": "text",
                   "nullable": false
+                },
+                "isCorrect": {
+                  "codecId": "pg/bool@1",
+                  "nativeType": "bool",
+                  "nullable": true
                 },
                 "questionId": {
                   "codecId": "pg/text@1",
@@ -899,6 +963,11 @@
                   "unique": false
                 }
               ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
               "uniques": []
             },
             "user": {
@@ -926,6 +995,11 @@
               },
               "foreignKeys": [],
               "indexes": [],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
               "uniques": [
                 {
                   "columns": [
@@ -946,16 +1020,7 @@
               "values": [
                 "RUNNING",
                 "SEARCHING",
-                "STOPPED",
-                "ABORTED"
-              ]
-            },
-            "GameStatus": {
-              "kind": "valueSet",
-              "values": [
-                "LOST",
-                "WON",
-                "TIE"
+                "STOPPED"
               ]
             },
             "OpsSign": {
@@ -966,6 +1031,15 @@
                 "MULTIPLY",
                 "DIVIDE"
               ]
+            },
+            "Result": {
+              "kind": "valueSet",
+              "values": [
+                "LOST",
+                "WON",
+                "TIE",
+                "ABORTED"
+              ]
             }
           }
         },
@@ -973,7 +1047,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "55287270dc888ee6cb91917f344bf70b71bcbf66497373a74701b4065334a844"
+    "storageHash": "a9d367a3897f12147e9b11ea0bb95580ba38dca70306f26777beeeea1d72543f"
   },
   "execution": {
     "executionHash": "7d60dd632bc6bf30002ebadf3f9b3d6d13a2b32afd5a79af17f920eea2410a94",

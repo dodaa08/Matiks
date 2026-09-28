@@ -1,75 +1,91 @@
 // use prisma-8
 
 model User {
-    id  String @default(uuid())
-    email String @unique
-    password String // Hash
-    username String @unique
-    // isOnline Boolean
-    gameMember GameMember[]
+  id String @id @default(uuid())
+
+  email String @unique
+  password String
+  username String @unique
+
+  gameMember GameMember[]
 }
 
-enum GameStatus {
+enum Result {
   LOST
   WON
   TIE
-}
-
-enum GamePerfStatus{
-  RUNNING
-  SEARCHING
-  STOPPED
   ABORTED
 }
 
+enum GamePerfStatus {
+  RUNNING
+  SEARCHING
+  STOPPED
+}
+
 model Game {
-  id  String @default(uuid())
-  name String @unique
+  id String @id @default(uuid())
+
   timelimit Int
-  status GameStatus
   gameStatus GamePerfStatus
+
   startedAt DateTime
-  endAt DateTime
+  endAt DateTime?
+
+  score Int
+
   questions Question[]
   gameMember GameMember[]
 }
 
 model GameMember {
-  id String  @default(uuid())
+  id String @id @default(uuid())
+
   gameId String
-  game  Game  @relation(references: [id], fields: [gameId])
+  game Game @relation(references: [id], fields: [gameId])
+
   userId String
-  user  User @relation(references: [id], fields: [userId])
+  user User @relation(references: [id], fields: [userId])
+
+  result Result?
+
+  score Int @default(0)
+  questionsAnswered Int @default(0)
 }
 
-enum OpsSign{
+enum OpsSign {
   PLUS
   MINUS
   MULTIPLY
   DIVIDE
 }
 
-model Question{
-  id String @default(uuid())
+model Question {
+  id String @id @default(uuid())
+
   gameId String
-  game  Game  @relation(references: [id], fields: [gameId])
-  answers QuestionAnswer[]
+  game Game @relation(references: [id], fields: [gameId])
+
   operation OpsSign
   numOfOprands Int
   NumsToBeUsed Int[]
+
+  answers QuestionAnswer[]
 }
 
-model QuestionAnswer{
-  id String @default(uuid())
+model QuestionAnswer {
+  id String @id @default(uuid())
 
   questionId String
-  question Question @relation(references: [id], fields : [questionId])
-  
+  question Question @relation(references: [id], fields: [questionId])
+
   answers Int
-  
+
   gameId String
-  game  Game  @relation(references: [id], fields: [gameId])
+  game Game @relation(references: [id], fields: [gameId])
+
+  isCorrect Boolean?
 
   userId String
-  user  User @relation(references: [id], fields: [userId])
+  user User @relation(references: [id], fields: [userId])
 }

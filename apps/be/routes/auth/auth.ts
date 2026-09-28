@@ -7,6 +7,7 @@ import  {sign} from "jsonwebtoken";
 import {JWT_SECRET} from "./../../utils";
 import { Middleware } from "../../middleware/Authmiddleware";
 
+
 export const AuthRouter = express.Router();
  
 AuthRouter.post("/signup",  async (req : Request, res : Response)=>{
