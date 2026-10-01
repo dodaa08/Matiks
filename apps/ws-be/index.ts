@@ -97,24 +97,34 @@ const StartGame = async (game : GameT)=>{
     game.questions = GenerateQuestions();
     game.gameStatus = "RUNNING";
     game.timelimit = 60;
+    game.startedAt = new Date();
 
     try{
-        await db.orm.public.Game.create({
+        await db.game.create(
+            {data : {
             timelimit : game.timelimit,
             gameStatus : game.gameStatus,
-            startedAt : Temporal.Now.instant(),
+            startedAt : game.startedAt,
             endAt : null,
             score : 0,
-            questions : (q)=> q.create(game.questions.map(({ operation, numOfOprands, NumsToBeUsed }) => ({
-                operation, numOfOprands, NumsToBeUsed,
-            }))),
-            gameMember : (m)=> m.create(game.gameMembers.map((member)=>({
-                userId : member.userId,
-                result : member.result,
-                score : member.score,
-                questionsAnswered : member.questionsAnswered,
-            }))),
-        });
+            questions: {
+                create: game.questions.map((q) => ({
+                    id: q.id,
+                    operation: q.operation,
+                    numOfOprands: q.numOfOprands,
+                    NumsToBeUsed: q.NumsToBeUsed,
+                })),
+            },
+             gameMember: {
+                create: game.gameMembers.map((m) => ({
+                    id: m.id,
+                    userId: m.userId,
+                    result: m.result,
+                    score: m.score,
+                    questionsAnswered: m.questionsAnswered,
+                })),
+            },
+        }});
     }
     catch(e){
         console.error("Failed to save game:", e);
@@ -170,17 +180,30 @@ const EndGame = async (gameId : string, result : EndReason)=>{
         });
 
         try{
-            await db.orm.public.Game.where({id : gameId}).update({
-                gameStatus : findGame.gameStatus,
-                endAt :  Temporal.Instant.fromEpochMilliseconds(findGame.endAt.getTime()),
-            });
+            await db.game.update({
+                data : {
+                    gameStatus : findGame.gameStatus,
+                    endAt :  new Date,
+                },
+                where : {
+                     id : gameId
+                }
+            })
+
 
              for (const member of findGame.gameMembers) {
-        await db.orm.public.GameMember.where({ id: member.id }).update({
-            score: member.score,
+
+        await db.gameMember.update({
+            data : {
+                score: member.score,
             result: member.result,
             questionsAnswered: member.questionsAnswered,
+            },
+            where : {
+                id : member.id
+            }
         });
+
     }
         }
         catch(e){
@@ -229,7 +252,13 @@ WS.on("connection", async (ws, req)=>{
         return;
     };
 
-    const user = await db.orm.public.User.where({id : decoded.userId}).first();
+    const user = await   db.user.findFirst({
+         where : {
+            id : decoded.userId
+         }
+    });
+
+    
     if(!user){
         ws.close();
         return;

@@ -2,7 +2,8 @@
 import './globals.css'
 import { Inter } from 'next/font/google'
 import type { Metadata } from 'next'
- 
+import { ThemeProvider } from '@/components/theme-provider' 
+
 const inter = Inter({ subsets: ['latin'] })
  
 export const metadata: Metadata = {
@@ -12,10 +13,16 @@ export const metadata: Metadata = {
  
 export default function GlobalNotFound() {
   return (
-    <html lang="en" className={inter.className}>
+    <html lang="en" className={inter.className} suppressHydrationWarning>
       <body>
-        <h1>404 - Page Not Found</h1>
-        <p>This page does not exist.</p>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+<div className='flex justify-center min-h-screen items-center'>
+  <div className='flex flex-col text-3xl'>
+        <h1>404 - Page Not Found 🫣</h1>
+        {/* <p>This page does not exist.</p> */}
+  </div>
+</div>
+        </ThemeProvider>
       </body>
     </html>
   )

@@ -2,13 +2,13 @@ import z, { email, ZodError } from "zod";
 
 const SignUpSchema = z.object({
     email : z.email(),
-    password : z.string().length(5, "Password should be min 5 length"),
+    password : z.string(),
     username : z.string()
 });
 
 const SignInSchema = z.object({
     email : z.email(),
-    password : z.string().length(5, "Password should be min 5 length"),
+    password : z.string()
 });
 
 const zodError = ({error}: {error : ZodError})=>{

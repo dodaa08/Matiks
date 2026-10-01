@@ -23,6 +23,8 @@
   "menuAccent": "subtle",
   "registries": {
     "@aceternity": "https://ui.aceternity.com/registry/{name}.json",
-    "@cardcn": "https://cardcn.dev/r/{name}.json"
+    "@cardcn": "https://cardcn.dev/r/{name}.json",
+    "@loading-ui": "https://loading-ui.com/r/{name}.json",
+    "@magicui": "https://magicui.design/r/{name}"
   }
 }

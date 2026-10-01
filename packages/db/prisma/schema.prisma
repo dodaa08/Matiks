@@ -1,0 +1,105 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id String @id @default(uuid())
+
+  email    String @unique
+  password String
+  username String @unique
+
+  gameMember      GameMember[]
+  questionAnswers QuestionAnswer[]
+}
+
+enum Result {
+  LOST
+  WON
+  TIE
+  ABORTED
+}
+
+enum GamePerfStatus {
+  RUNNING
+  SEARCHING
+  STOPPED
+}
+
+model Game {
+  id String @id @default(uuid())
+
+  timelimit  Int
+  gameStatus GamePerfStatus
+
+  startedAt DateTime
+  endAt     DateTime?
+
+  score Int
+
+  questions       Question[]
+  questionAnswers QuestionAnswer[]
+  gameMember      GameMember[]
+}
+
+model GameMember {
+  id String @id @default(uuid())
+
+  gameId String
+  game   Game   @relation(references: [id], fields: [gameId])
+
+  userId String
+  user   User   @relation(references: [id], fields: [userId])
+
+  result Result?
+
+  score             Int @default(0)
+  questionsAnswered Int @default(0)
+}
+
+enum OpsSign {
+  PLUS
+  MINUS
+  MULTIPLY
+  DIVIDE
+}
+
+model Question {
+  id String @id @default(uuid())
+
+  gameId String
+  game   Game   @relation(references: [id], fields: [gameId])
+
+  operation    OpsSign
+  numOfOprands Int
+  NumsToBeUsed Int[]
+
+  answers QuestionAnswer[]
+}
+
+model QuestionAnswer {
+  id String @id @default(uuid())
+
+  questionId String
+  question   Question @relation(references: [id], fields: [questionId])
+
+  answers Int
+
+  gameId String
+  game   Game   @relation(references: [id], fields: [gameId])
+
+  isCorrect Boolean?
+
+  userId String
+  user   User   @relation(references: [id], fields: [userId])
+}

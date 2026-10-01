@@ -1,47 +1,18 @@
 {
   "name": "@repo/db",
   "private": true,
-  "packageManager": "bun@1.4.1",
   "type": "module",
-  "engines": {
-    "node": "^22.18.0 || >=24.11.0"
-  },
-  "exports" : {
-    "." : "./src/index.ts"
-  },
-  "scripts": {
-    "build": "tsdown",
-    "composer:deploy": "prisma deploy module.ts",
-    "composer:dev": "prisma dev module.ts",
-    "contract:emit": "prisma contract emit",
-    "db:init": "prisma db init",
-    "db:update": "prisma db update",
-    "db:verify": "prisma db verify",
-    "deploy": "bun run build && bun run composer:deploy",
-    "dev": "tsx watch src/index.ts",
-    "dev:composer": "bun run build && bun run composer:dev",
-    "migrate": "prisma db migrate",
-    "migration:plan": "prisma migration plan",
-    "migration:show": "prisma migration show",
-    "migration:status": "prisma migration status",
-    "start": "node dist/server.mjs"
-  },
-  "dependencies": {
-    "@prisma/composer": "0.20.0",
-    "@prisma/composer-prisma-cloud": "0.20.0",
-    "@prisma/orm-postgres": "8.0.0-rc.11",
-    "alchemy": "2.0.0-beta.74",
-    "temporal-polyfill": "^1.0.4"
+  "exports": {
+    ".": "./index.ts"
   },
   "devDependencies": {
-    "@prisma/dev": "0.25.2",
-    "@types/node": "^25.6.2",
-    "prisma": "8.0.0-rc.15",
-    "tsdown": "^0.22.14",
-    "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "@types/pg": "^8.23.1",
+    "prisma": "7.10.0"
   },
-  "overrides": {
-    "effect": "4.0.0-rc.112"
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.10.0",
+    "@prisma/client": "7.10.0",
+    "dotenv": "^18.0.5",
+    "pg": "^8.23.1"
   }
 }

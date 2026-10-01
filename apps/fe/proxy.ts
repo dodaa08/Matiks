@@ -1,0 +1,47 @@
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
+
+export async function proxy(req: NextRequest) {
+  const token = req.cookies.get("token")?.value; // use your actual cookie name
+  const { pathname } = req.nextUrl;
+
+  const isAuthPage = pathname.startsWith("/auth");
+
+  // Quick check: no cookie at all
+  if (!token) {
+    if (isAuthPage) return NextResponse.next();
+    return NextResponse.redirect(new URL("/auth/signin", req.url));
+  }
+
+  // Stronger check: ask your backend whether the token is actually valid
+  let isValid = false;
+  try {
+    const res = await fetch(`${API_URL}/api/v1/auth/me`, {
+      headers: { cookie: req.headers.get("cookie") ?? "" },
+    });
+    isValid = res.ok;
+  } catch {
+    isValid = false;
+  }
+
+  if (!isValid) {
+    const res = isAuthPage
+      ? NextResponse.next()
+      : NextResponse.redirect(new URL("/auth/signin", req.url));
+    res.cookies.delete("token"); // clear the stale cookie
+    return res;
+  }
+
+  // Logged-in users shouldn't see signin/signup
+  if (isAuthPage) {
+    return NextResponse.redirect(new URL("/dashboard", req.url));
+  }
+
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: ["/dashboard/:path*", "/game/:path*", "/auth/:path*"],
+};
