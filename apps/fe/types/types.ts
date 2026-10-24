@@ -46,8 +46,8 @@ export type Score = {
 export type Question = {
   id: string;
   operation: "PLUS" | "MINUS" | "MULTIPLY" | "DIVIDE";
-  numOfOprands: number;
-  NumsToBeUsed: number[];
+  numOfOperands: number;
+  numsToBeUsed: number[];
 };
 
 export type GameT = {
