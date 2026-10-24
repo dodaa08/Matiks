@@ -1,4 +1,4 @@
-import z, { email, ZodError } from "zod";
+import z, { ZodError } from "zod";
 
 const SignUpSchema = z.object({
     email : z.email(),

@@ -1,7 +1,7 @@
 import { onlineUser } from "@/types/types";
 
 export const dummyOnlineUsers: onlineUser[] = [
-  { id: "1", name: "Shad", image: "https://github.com/shadcn.png" },
+  { id: "1", name: "Shad", image: "https://drive.google.com/thumbnail?id=15pb6ioErAjRh52ITY5g3hOEw2DfGtsf4&sz=w200" },
   { id: "2", name: "Evil Rabbit", image: "https://github.com/evilrabbit.png" },
   { id: "3", name: "Max Leiter", image: "https://github.com/maxleiter.png" },
   { id: "4", name: "Guillermo", image: "https://github.com/rauchg.png" },

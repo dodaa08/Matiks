@@ -22,13 +22,15 @@ type SignupFormProps = Omit<React.ComponentProps<typeof Card>, "onSubmit"> & {
   username: string;
   email: string;
   password: string;
+  setconfirmPass : (V : string) =>void;
+  confirmPass : string;
   setUsername: (v: string) => void;
   setEmail: (v: string) => void;
   setPassword: (v: string) => void;
 };
 
 export function SignupForm({  onSubmit, isPending, error,
-  username, email, password,
+  username, email, password, setconfirmPass, confirmPass,
   setUsername, setEmail, setPassword,  ...props}: SignupFormProps) {
     const router  = useRouter();
   return (
@@ -74,12 +76,11 @@ export function SignupForm({  onSubmit, isPending, error,
               <FieldLabel htmlFor="confirm-password">
                 Confirm Password
               </FieldLabel>
-              <Input id="confirm-password" type="password" required />
+              <Input value={confirmPass} onChange={(e)=>setconfirmPass(e.target.value)} id="confirm-password" type="password" required />
               <FieldDescription>Please confirm your password.</FieldDescription>
             </Field>
             <FieldGroup>
               <Field>
-
                  {error && <p className="text-sm text-red-500">{error}</p>}
 
                 <Button disabled={isPending}  type="submit">{

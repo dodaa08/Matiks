@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowUp, PieChart, ArrowBigRight } from "lucide-react";
+import { ArrowUp, ArrowBigRight } from "lucide-react";
 
 export default function CardC() {
   return (

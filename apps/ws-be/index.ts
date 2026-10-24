@@ -1,14 +1,17 @@
 import { WebSocketServer, type WebSocket } from "ws";
 import { verify, type JwtPayload } from "jsonwebtoken";
-import { JWT_SECRET } from "@repo/common/utils";
+import { env } from "@repo/common/utils";
 import { db } from "@repo/db";
 import type { GameT, Question, Result, User, EndReason } from "./types";
 import { randomUUID } from "crypto";
 import { GenerateQuestions, CalAnswer } from "./utils";
+import { parseCookie } from "cookie";
 
 const WS = new WebSocketServer({
-    port : 8080
+    port : 8081
 });
+
+const JWT_SECRET = env.JWTTOKEN;
 
 const OnlineUsers : Map<string, User> = new Map();
 const GameState: Map<string, GameT> = new Map();
@@ -16,6 +19,8 @@ const UserGames : Map<string, string> = new Map();
 const WSConnections : Map<string, WebSocket> = new Map();
 const GameAnswers : Map<string, Map<string, Map<string, number>>> = new Map();
 const GameTimer : Map <string, NodeJS.Timeout> = new Map();
+
+const ALLOWED_ORIGINS = ["http://localhost:3000"];
 
 const send = (userId : string, payload : unknown)=>{
     WSConnections.get(userId)?.send(JSON.stringify(payload));
@@ -26,7 +31,7 @@ const notifyMembers = (game : GameT, payload : unknown)=>{
 };
 
 const correctAnswer = (question : Question) : number =>
-    CalAnswer(question.operation, question.NumsToBeUsed);
+    CalAnswer(question.operation, question.numsToBeUsed);
 
 
 const handleAnswer = async (userId : string, data : {
@@ -102,6 +107,7 @@ const StartGame = async (game : GameT)=>{
     try{
         await db.game.create(
             {data : {
+            id : game.id,
             timelimit : game.timelimit,
             gameStatus : game.gameStatus,
             startedAt : game.startedAt,
@@ -111,8 +117,8 @@ const StartGame = async (game : GameT)=>{
                 create: game.questions.map((q) => ({
                     id: q.id,
                     operation: q.operation,
-                    numOfOprands: q.numOfOprands,
-                    NumsToBeUsed: q.NumsToBeUsed,
+                    numOfOprands: q.numOfOperands,
+                    NumsToBeUsed: q.numsToBeUsed,
                 })),
             },
              gameMember: {
@@ -127,7 +133,7 @@ const StartGame = async (game : GameT)=>{
         }});
     }
     catch(e){
-        console.error("Failed to save game:", e);
+        console.error("Failed to save game:", e instanceof Error ? e.message : e);
     }
 
     game.gameMembers.forEach((member)=> UserGames.set(member.userId, game.id));
@@ -139,6 +145,7 @@ const StartGame = async (game : GameT)=>{
         data : {
             gameId : game.id,
             timelimit : game.timelimit,
+            startedAt: game.startedAt,
             questions : game.questions,
             members : game.gameMembers.map((member)=> ({ userId : member.userId })),
         },
@@ -161,6 +168,7 @@ const EndGame = async (gameId : string, result : EndReason)=>{
         };
 
         findGame.gameStatus = "STOPPED";
+        console.log("Game stopped")
         findGame.endAt = new Date();
 
         const timer = GameTimer.get(gameId);
@@ -189,7 +197,6 @@ const EndGame = async (gameId : string, result : EndReason)=>{
                      id : gameId
                 }
             })
-
 
              for (const member of findGame.gameMembers) {
 
@@ -234,25 +241,30 @@ const EndGame = async (gameId : string, result : EndReason)=>{
 
 WS.on("connection", async (ws, req)=>{
 
-    const token = new URL(req.url ?? "", "http://localhost").searchParams.get("token");
+    const origin = req.headers.origin;
+    const isDev = process.env.NODE_ENV !== "production";
 
-    if(!token){
-        ws.close();
-        return;
+    if (origin ? !ALLOWED_ORIGINS.includes(origin) : !isDev) {
+       return ws.close(1008, "bad origin");
     }
+    const token = parseCookie(req.headers.cookie ?? "").token;
+
+    if (!token) return ws.close(1008, "unauthorized");
 
     let decoded;
 
     try{
+        // console.log(`JWT : ${JWT_SECRET}`);
         decoded = verify(token, JWT_SECRET) as JwtPayload;
+        console.log("Connected");
     }
     catch(error){
-        console.log("Verfication failed!");
+        console.log(`Verfication failed!, error : ${error}`);
         ws.close();
         return;
     };
 
-    const user = await   db.user.findFirst({
+    const user = await db.user.findFirst({
          where : {
             id : decoded.userId
          }
@@ -276,19 +288,21 @@ WS.on("connection", async (ws, req)=>{
     WS.clients.forEach((wss)=>{
         wss.send(JSON.stringify({
             type : "ONLINE_USERS",
-            users : Array.from(OnlineUsers),
+            users : Array.from(OnlineUsers.values()),
         }));
     });
 
     ws.on("message", async (event)=>{
         try{
             const data = JSON.parse(event.toString());
+            console.log("WS message received:", data.type, data);
 
-            if(data.type == "SEARCHING"){
+            if(data.type == "WAITING"){
+                console.log("Player req created");
                 let JoinedGame : GameT | null = null;
                 const gameId = randomUUID();
                 for(const game of GameState.values()){
-                    if(game.gameStatus === "SEARCHING" && game.gameMembers.length < 2){
+                    if(game.gameStatus === "SEARCHING" && game.gameMembers.length < 2 && !game.gameMembers.some((m) => m.userId === user.id)){
                         JoinedGame = game;
                         break;
                     }
@@ -326,15 +340,16 @@ WS.on("connection", async (ws, req)=>{
                         startedAt : new Date(),
                         endAt : null,
                     };
+                    console.log("Searching for the opponent");
                     GameState.set(gameId, newGame);
                     UserGames.set(user.id, gameId);
-                    ws.send(JSON.stringify({ type: "WAITING_FOR_OPPONENT", data: { gameId } }));
+                    console.log("Waiting for the oponent")
+                    ws.send(JSON.stringify({ type: "SEARCHING", data: { gameId } }));
                 }
             }
             else if(data.type == "ANSWER"){
                 handleAnswer(user.id, data.data);
             };
-            
         }
         catch(e){
             console.error("Failed to handle message:", e);
@@ -343,13 +358,17 @@ WS.on("connection", async (ws, req)=>{
 
     ws.on("close", (reason : Result)=>{
 
-        OnlineUsers.delete(user.id);
-        WSConnections.delete(user.id);
+        // Only remove the entry if it still points to this socket.
+        // A newer socket for the same user may have replaced it.
+        if (WSConnections.get(user.id) === ws) {
+            OnlineUsers.delete(user.id);
+            WSConnections.delete(user.id);
+        }
 
         WS.clients.forEach((wss)=>{
             wss.send(JSON.stringify({
                 type : "ONLINE_USERS",
-                users : Array.from(OnlineUsers)
+                users : Array.from(OnlineUsers.values())
             }));
         });
 
@@ -367,7 +386,7 @@ WS.on("connection", async (ws, req)=>{
 
         if(game.gameStatus == "SEARCHING"){
             GameState.delete(gameId);
-            UserGames.delete(gameId);
+            UserGames.delete(user.id);
         };
 
         if(game.gameStatus == "RUNNING"){

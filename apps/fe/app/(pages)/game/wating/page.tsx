@@ -1,6 +1,9 @@
+"use client";
+
 import { Ripple } from "@/components/loading-ui/ripple";
 
-const loading = ()=>{
+const Page = ()=>{
+    
     return<>
     <div className="flex min-h-screen items-center justify-center">
         <div className="size-50">
@@ -11,4 +14,4 @@ const loading = ()=>{
         </>
 };
 
-export default loading;
+export default Page;

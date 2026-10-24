@@ -4,8 +4,9 @@ import  {db} from "@repo/db";
 import {SignUpSchema, SignInSchema} from "@repo/common";
 import bcrypt from "bcryptjs";
 import  {sign} from "jsonwebtoken";
-import {JWT_SECRET} from "../../utils";
+import { env } from "@repo/common/utils";
 import { Middleware } from "@/middleware/Authmiddleware";
+const JWT_SECRET = env.JWTTOKEN;
 
 export const AuthRouter = express.Router();
 
@@ -23,7 +24,7 @@ AuthRouter.post("/signup",  async (req : Request, res : Response)=>{
 
     try{
 
-        const {email, password } = data;
+        const {email, password, username } = data;
         if (!email || !password) {
           return res.status(400).json({ error: "Email and password required" });
         }
@@ -41,21 +42,30 @@ AuthRouter.post("/signup",  async (req : Request, res : Response)=>{
                 return;
             }
             
-            const hashpassword = await bcrypt.hash(password, 3);
+            const hashpassword = await bcrypt.hash(password, 12);
             
-            const username =  email.split("@")[0] || "";
             
-            await db.user.create({
+            const user = await db.user.create({
                  data : {
                 email : data.email,
                 password : hashpassword,
                 username : username
             }
             });
+
+            const  token = sign({userId : user.id}, JWT_SECRET, {
+        expiresIn : "7d"
+    });
+
+    res.cookie("token", token, {
+    httpOnly: true,                                  // JS can't read it
+    secure: process.env.NODE_ENV === "production",   // HTTPS only in prod
+    sameSite: "lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000,                 // match the JWT expiry
+    });
+
             
-            res.status(200).json(
-                {message : "Success"}
-            )
+            res.status(201).json({ message: "Success", user: { id: user.id, email: user.email, username: user.username } });
         }
       catch (e: any) {
     console.error("code:", e.code, "meta:", e.meta);
@@ -67,8 +77,8 @@ AuthRouter.post("/signup",  async (req : Request, res : Response)=>{
 AuthRouter.post("/signin", async (req : Request, res : Response)=>{
     const {success, data, error} = SignInSchema.safeParse(req.body);
     if(!success){ 
-        res.status(403).json({
-            message : `${error.flatten().fieldErrors}`
+        res.status(401).json({
+            errors: error.flatten().fieldErrors 
         });
         return;
     }
@@ -82,7 +92,7 @@ AuthRouter.post("/signin", async (req : Request, res : Response)=>{
         });
 
     if(!findUser){
-        res.status(403).json({
+        res.status(401).json({
             message : `User doen't exist`
         });
         return;

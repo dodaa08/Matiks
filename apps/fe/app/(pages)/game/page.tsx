@@ -1,9 +1,8 @@
 import { Input } from "@/components/ui/input";
-import { gameMember } from "@/types/types";
 import { dummyOnlineUsers } from "../dashboard/dummy";
 import { DotPattern } from "@/components/ui/dot-pattern";
 
-const Game = ( {gameMembers} : {gameMembers : gameMember[]}) =>{
+const Game = () =>{
     return<>
     <div className="mx-auto flex w-full max-w-md flex-col items-center gap-8 px-4 py-2">
       

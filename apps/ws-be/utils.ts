@@ -1,4 +1,5 @@
 import type { Question } from "./types";
+import { randomUUID } from "crypto";
 
 export const CalAnswer = (sign : string, operands : number[]) : number =>{
     switch(sign){
@@ -31,10 +32,10 @@ export const GenerateQuestions = () : Question[] =>{
 
         const sign = Signs[Math.floor(Math.random() * Signs.length)]!;
             questions.push({
-                id : `q-${i}`,
+                id : `q-${randomUUID()}`,
                 operation : sign,
-                numOfOprands : OperandsNum,
-                NumsToBeUsed : Operands,
+                numOfOperands : OperandsNum,
+                numsToBeUsed : Operands,
             });
         };
 

@@ -4,18 +4,16 @@ import type { NextRequest } from "next/server";
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
 
 export async function proxy(req: NextRequest) {
-  const token = req.cookies.get("token")?.value; // use your actual cookie name
+  const token = req.cookies.get("token")?.value;
   const { pathname } = req.nextUrl;
 
   const isAuthPage = pathname.startsWith("/auth");
 
-  // Quick check: no cookie at all
   if (!token) {
     if (isAuthPage) return NextResponse.next();
     return NextResponse.redirect(new URL("/auth/signin", req.url));
   }
 
-  // Stronger check: ask your backend whether the token is actually valid
   let isValid = false;
   try {
     const res = await fetch(`${API_URL}/api/v1/auth/me`, {
