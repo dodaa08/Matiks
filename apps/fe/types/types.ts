@@ -61,3 +61,5 @@ export type GameT = {
     gameMembers : gameMember[];
     questions : Question[];
 };
+
+export type StoppedResult = Score & { result: Result };

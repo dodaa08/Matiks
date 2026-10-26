@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { onlineUser, GameStartPayload, Score } from "@/types/types";
+import type { onlineUser, GameStartPayload, Score, EndReason, StoppedResult  } from "@/types/types";
 
 export type Status = "IDLE" | "SEARCHING" | "RUNNING" | "STOPPED"
 
@@ -9,11 +9,17 @@ type GameStore = {
   game: GameStartPayload | null;
   onlineUsers: onlineUser[];
   scores: Score[];
-
+  endReason: EndReason | null;
+  lastResult: StoppedResult[] | null;
+  myUserId : string  | null;
+  lastAnswer: { questionId: string; answer: number; isCorrect: boolean; score: number } | null
+  lastError: string | null
   setSocket: (socket: WebSocket | null) => void;
   startSearch: () => void;
+  clearResult: ()=>void;
   sendAnswer: (questionId: string, answer: number) => void;
   reset: () => void;
+  setMyUserId : (id : string)=>void;
 };
 
 // Create the box
@@ -23,8 +29,14 @@ export const useGame = create<GameStore>((set, get) => ({
   socket: null,
   onlineUsers: [],
   scores: [],
+  endReason : null,
+  lastResult : null,
+  myUserId : null,
+  lastAnswer:  null,
+  lastError: null,
 
   setSocket: (socket) => set({ socket }),
+  setMyUserId :  (id) => set({ myUserId: id }),
 
   startSearch: () => {
     const { socket, status } = get();
@@ -40,4 +52,5 @@ export const useGame = create<GameStore>((set, get) => ({
   },
 
   reset: () => set({ status: "IDLE", game: null, scores: [] }),
+  clearResult : ()=>set({ status: "IDLE", endReason : null, lastResult : null })
 }));

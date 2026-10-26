@@ -16,21 +16,34 @@ export const CalAnswer = (sign : string, operands : number[]) : number =>{
     }
 }
 
+const randInt = (min : number, max : number) : number =>
+    Math.floor(Math.random() * (max - min + 1)) + min;
+
+// Builds DIVIDE operands so that a / b / c / ... is always a whole number.
+// Pick the divisors first, then start from the quotient and multiply back up.
+const buildDivisionOperands = (count : number) : number[] => {
+    const divisors = Array.from({ length: count - 1 }, () => randInt(1, 9));
+    const quotient = randInt(0, 19);
+
+    let first = quotient;
+    for (const d of divisors) first *= d;
+
+    return [first, ...divisors];
+};
+
 export const GenerateQuestions = () : Question[] =>{
     try{
-       
         const questions : Question[] = [];
-        
-        for(let i = 0; i<60; i++){
-            const OperandsNum = Math.floor(Math.random() * 4)+2;
-            const Operands = [];
         const Signs = ["PLUS", "MINUS", "MULTIPLY", "DIVIDE"] as const;
-        for(let j = 0; j<OperandsNum; j++){
-            let Op = Math.floor(Math.random() * 20);
-            Operands.push(Op);
-        }
 
-        const sign = Signs[Math.floor(Math.random() * Signs.length)]!;
+        for(let i = 0; i<60; i++){
+            const OperandsNum = randInt(2, 5);
+            const sign = Signs[randInt(0, Signs.length - 1)]!;
+
+            const Operands = sign === "DIVIDE"
+                ? buildDivisionOperands(OperandsNum)
+                : Array.from({ length: OperandsNum }, () => randInt(0, 19));
+
             questions.push({
                 id : `q-${randomUUID()}`,
                 operation : sign,

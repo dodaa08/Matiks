@@ -74,17 +74,30 @@ const handleAnswer = async (userId : string, data : {
     }
    
     const correctVal = correctAnswer(question);
-    userAnswer.set(questionId, answer);
-    member.questionsAnswered += 1;
 
     const isCorrect = answer == correctVal;
-    if (isCorrect) member.score += 1;
-    send(userId, {
-        type : "Answer_result",
+    if (!isCorrect){
+     send(userId, {
+        type : "ANSWER_RESULT",
         data : {questionId, answer, isCorrect, score: member.score}
     });
 
+    return;
+    }
+
+    userAnswer.set(questionId, answer);
+    member.questionsAnswered += 1;
+
+    member.score +=1;
+
+    send(userId, {
+    type: "ANSWER_RESULT",
+    data: { questionId, answer, isCorrect: true, score: member.score }
+});
+
+
     notifyMembers(game,{
+        type: "SCORE_UPDATE",
         data: {
             scores: game.gameMembers.map((m) => ({
                 userId: m.userId,
@@ -191,7 +204,7 @@ const EndGame = async (gameId : string, result : EndReason)=>{
             await db.game.update({
                 data : {
                     gameStatus : findGame.gameStatus,
-                    endAt :  new Date,
+                    endAt :  new Date(),
                 },
                 where : {
                      id : gameId
@@ -224,7 +237,7 @@ const EndGame = async (gameId : string, result : EndReason)=>{
             result : findGame.gameMembers.map(mem=>(
                 {
                     userId : mem.userId,
-                    scores : mem.score,
+                    score : mem.score,
                     questionsAnswered : mem.questionsAnswered,
                     result : mem.result
                 }
