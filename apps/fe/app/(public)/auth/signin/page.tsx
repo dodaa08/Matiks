@@ -30,7 +30,7 @@ export default function signin() {
       setError("");
 
       try{
-         const res : Response = await axios.post("http://localhost:8080/api/v1/auth/signin", {
+         const res : Response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/signin`, {
             email : email,
             password : password 
          }, {

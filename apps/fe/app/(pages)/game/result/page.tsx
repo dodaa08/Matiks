@@ -27,11 +27,13 @@ const Result = () => {
     if (outcome !== "WON" && outcome !== "LOST" && outcome !== "TIE" && outcome !== "ABORTED") return null;
 
     return (
+        <div className="flex min-h-[calc(100svh-4rem)] w-full items-center justify-center px-4">
         <CardImage
             result={outcome}
             myScore={findResult.score}
             opponentScore={findResultOpp.score}
-        />
+            />
+            </div>
     );
 };
 

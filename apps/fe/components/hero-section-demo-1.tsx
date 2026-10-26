@@ -12,12 +12,12 @@ export default function HeroSectionOne() {
   const [isLoggedIn, setisLoggedIn] = useState<boolean | null>(null);
 
   useEffect(()=>{
-      axios.get("http://localhost:8080/api/v1/auth/me", {withCredentials : true}).then(()=>setisLoggedIn(true)).catch(()=>setisLoggedIn(false));
+      axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/me`, {withCredentials : true}).then(()=>setisLoggedIn(true)).catch(()=>setisLoggedIn(false));
   }, [router]);
 
   const LogOut = async ()=>{
       try {
-    await axios.post("http://localhost:8080/api/v1/auth/signout", {}, { withCredentials: true });
+    await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/signout`, {}, { withCredentials: true });
     setisLoggedIn(false);
     alert("User logged out");
     setTimeout(()=>{

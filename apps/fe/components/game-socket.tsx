@@ -11,7 +11,7 @@ export const GameSocket = ()=>{
     const pathname =usePathname();
     useEffect(()=>{
 
-    const socket = new WebSocket(`ws://localhost:8081`);
+    const socket = new WebSocket(process.env.NEXT_PUBLIC_WS_URL!);
     useGame.getState().setSocket(socket);
 
     socket.onmessage = ((event)=>{
@@ -67,7 +67,7 @@ export const GameSocket = ()=>{
 
 
     const GetuserId = async ()=>{
-         const user = await axios.get(`${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080"}/api/v1/auth/me`, {
+         const user = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/me`, {
             withCredentials : true
         });
 
