@@ -1,0 +1,63 @@
+services:
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    environment:
+      APP_HOST: ${APP_HOST}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - fe
+      - be
+      - ws
+
+  postgres:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: matiks
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: matiks
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U matiks -d matiks"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  be:
+    image: ${DOCKERHUB_USERNAME}/matiks-be:${TAG}
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://matiks:${POSTGRES_PASSWORD}@postgres:5432/matiks
+      JWTTOKEN: ${JWTTOKEN}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  ws:
+    image: ${DOCKERHUB_USERNAME}/matiks-ws:${TAG}
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://matiks:${POSTGRES_PASSWORD}@postgres:5432/matiks
+      JWTTOKEN: ${JWTTOKEN}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  fe:
+    image: ${DOCKERHUB_USERNAME}/matiks-fe:${TAG}
+    restart: unless-stopped
+    environment:
+      API_INTERNAL_URL: http://be:8080
+
+volumes:
+  pgdata:
+  caddy_data:
+  caddy_config:

@@ -1,0 +1,20 @@
+{$APP_HOST} {
+	encode gzip
+
+	# Backend API (auth, games)
+	handle /api/* {
+		reverse_proxy be:8080
+	}
+
+	# WebSocket server; /ws prefix is stripped before forwarding
+	@ws path /ws /ws/*
+	handle @ws {
+		uri strip_prefix /ws
+		reverse_proxy ws:8081
+	}
+
+	# Everything else goes to the Next.js frontend
+	handle {
+		reverse_proxy fe:3000
+	}
+}

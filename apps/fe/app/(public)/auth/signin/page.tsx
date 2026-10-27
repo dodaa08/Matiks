@@ -43,7 +43,7 @@ export default function signin() {
       }
       catch(err){
       if (axios.isAxiosError(err)) {
-        setError(err.response?.data?.error ?? "SignIn failed");
+        setError(err.response?.data?.error ?? err.response?.data?.message ?? "SignIn failed");
       } else {
         setError("Something went wrong");
         alert("Something went wrong")

@@ -2,19 +2,19 @@ FROM oven/bun:1-alpine
 
 WORKDIR /app
 
-COPY package.json bun.lock turbo.json ./
-COPY apps/ws/package.json apps/ws/
-COPY packages/db/package.json packages/db/
-COPY packages/common/package.json packages/common/
+COPY package.json turbo.json bun.lock ./
+COPY packages/common/package.json ./packages/common/
+COPY packages/db/package.json ./packages/db/
+COPY apps/ws-be/package.json ./apps/ws-be/
 
 RUN bun install
 
-COPY apps/ws/ /app/apps/ws/
-COPY packages/common/ /app/packages/common/
-COPY packages/db/ /app/packages/db/
+COPY packages/common ./packages/common/
+COPY packages/db ./packages/db/
+COPY apps/ws-be ./apps/ws-be/
 
 RUN DATABASE_URL=postgresql://dummy:dummy@localhost:5432/dummy bun run db:generate
 
 EXPOSE 8081
 
-CMD ["sh", "-c", "bun run db:migrate && bun run ws:start"]
+CMD [ "sh", "-c", "bun run db:migrate && exec bun run ws:start" ]

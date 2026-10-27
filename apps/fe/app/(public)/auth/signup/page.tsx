@@ -46,7 +46,7 @@ export default function signup() {
         console.log(`Error: ${err}`);
         console.log(`Error : ${err.message}`);
         console.log(`Error response : ${err.response?.data?.error}`);
-        setError(err.response?.data?.error ?? "Signup failed");
+        setError(err.response?.data?.error ?? err.response?.data?.message ?? "Signup failed");
       } else {
         setError("Something went wrong");
         alert("Something went wrong")
