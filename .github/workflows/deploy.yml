@@ -106,7 +106,6 @@ jobs:
           username: ${{ secrets.VM_USER }}
           key: ${{ secrets.VM_SSH_KEY }}
           envs: TAG,DOCKERHUB_USERNAME,DOCKERHUB_TOKEN,APP_HOST,JWTTOKEN,POSTGRES_PASSWORD
-          script_stop: true
           script: |
             set -e
             cd ~/Matiks
