@@ -20,7 +20,7 @@ const WSConnections : Map<string, WebSocket> = new Map();
 const GameAnswers : Map<string, Map<string, Map<string, number>>> = new Map();
 const GameTimer : Map <string, NodeJS.Timeout> = new Map();
 
-const ALLOWED_ORIGINS = ["http://localhost:3000"];
+const ALLOWED_ORIGINS = (process.env.CORS_ORIGIN ?? "http://localhost:3000").split(",");
 
 const send = (userId : string, payload : unknown)=>{
     WSConnections.get(userId)?.send(JSON.stringify(payload));
